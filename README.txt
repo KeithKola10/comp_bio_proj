@@ -7,3 +7,4 @@ conda install pandas==1.5.3
 conda install scikit-learn
 conda install biopython
 conda install seaborn
+conda install ipdb
