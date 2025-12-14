@@ -1,8 +1,5 @@
 # Visualize_Felsenstein_Tree.py
 
-# Visualize a Newick tree built from TemPhD AMR sequences,
-# and relabel tips by Host | Protein_ID using DataFormat metadata.
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt
