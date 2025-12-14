@@ -1,12 +1,3 @@
-# Build a phylogenetic tree from TemPhD AMR sequences
-# and compute its likelihood with Felsenstein's algorithm
-
-# Pipeline:
-#   1) Use DataFormat and use AMR-positive phage sequences
-#   2) Align with MAFFT
-#   3) Build a UPGMA tree from pairwise p-distances.
-#   4) Use Felsenstein pruning to compute log-likelihood of
-#      the alignment on that tree.
 
 import os
 import subprocess
@@ -39,10 +30,6 @@ MAFFT_BIN = r"C:\Program Files\mafft-win\mafft.bat"
 
 # Jukes-Cantor rate
 jukes_rate = 1.0
-
-
-# Load Dataformat with only AMR positive files, write the fastas
-
 def build_temphd_fasta(max_taxa: int = MAX_TAXA_FOR_TREE) -> None:
 
     data_obj = DataFormat(str(DATA_ROOT), DB_NAME)
@@ -87,9 +74,7 @@ def build_temphd_fasta(max_taxa: int = MAX_TAXA_FOR_TREE) -> None:
         raise ValueError("Need at least 3 sequences to build a tree; got fewer.")
 
     print(f"[FASTA] Wrote {n_written} sequences to {FASTA_PATH}")
-
-# Alignment using MAAFT 
-
+    
 def run_mafft_if_configured() -> Path:
 
     if MAFFT_BIN is None:
@@ -124,8 +109,7 @@ def load_alignment_from_fasta(path: Path) -> Dict[str, str]:
     return aln
 
 
-# Implementation of Felselsteins---------------------------------------
-
+# Implementation of Felselsteins
 NUC_STATES = ["A", "C", "G", "T"]
 STATE_INDEX = {b: i for i, b in enumerate(NUC_STATES)}
 
@@ -167,12 +151,10 @@ def postorder(node: Node) -> List[Node]:
 def felsenstein_log_likelihood(root: Node,
                                alignment: Dict[str, str],
                                mu: float = jukes_rate) -> float:
-    # All sequences must be aligned and same length
     L_sites = len(next(iter(alignment.values())))
     for s in alignment.values():
         assert len(s) == L_sites, "All sequences must have same length (aligned)."
-
-    # Precompute leaf partial likelihoods: (L_sites, 4)
+        
     leaf_partials: Dict[str, np.ndarray] = {}
     for taxon, seq in alignment.items():
         arr = np.zeros((L_sites, 4), dtype=float)
@@ -193,7 +175,6 @@ def felsenstein_log_likelihood(root: Node,
 
     partials: Dict[Node, np.ndarray] = {}
 
-    # Bottom-up recursion
     for node in postorder(root):
         if node.is_leaf():
             if node.name not in leaf_partials:
@@ -209,15 +190,12 @@ def felsenstein_log_likelihood(root: Node,
                 node_like *= contrib
             partials[node] = node_like
 
-    # Root likelihood and total log-likelihood
     root_like = partials[root]
     site_likes = root_like @ pi  # (L_sites,)
     site_likes = np.clip(site_likes, 1e-300, 1.0)
     logL = float(np.sum(np.log(site_likes)))
     return logL
 
-
-# Design tree topology
 def p_distance(seq1: str, seq2: str) -> float:
     assert len(seq1) == len(seq2)
     diffs = 0
@@ -331,7 +309,7 @@ def tree_to_newick(node: Node) -> str:
 # Main
 
 def main():
-    print("=== Felsenstein ML (JC69) on TemPhD AMR sequences ===")
+    print("Felsenstein ML + TemPhD AMR sequences")
     print(f"Data root : {DATA_ROOT}")
     print(f"Output dir: {OUTPUT_DIR}")
 
