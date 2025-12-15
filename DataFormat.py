@@ -140,15 +140,14 @@ class DataFormat():
             rows.append(
                 {    
                     "Protein_ID": prot_id,
-                    "sequence": dna_seq,  
+                    "Protein Sequence": dna_seq,
+                    #"Genome Sequence": genome_seq, 
                     "description": phage_to_desc.get(phage_id),
-                    "length": phage_to_len.get(phage_id),
-                    
+                    "length": phage_to_len.get(phage_id), 
                 }
             )
 
         df_out = pd.DataFrame(rows)
-            
         return df_out
      
     def __get_phages_with_no_AMR__(self,phage_AMR_ids,meta_data, n):
@@ -163,7 +162,7 @@ class DataFormat():
         return non_AMR_ids
             
             
-    def __get_phages_with_AMR__(self,phage_AMR_ids,meta_data, n):
+    def __get_phages_with_AMR__(self,phage_AMR_ids,meta_data, n, get_all_AMR = False):
         '''generate a list of AMR ids '''
         
         AMR_ids = []
@@ -171,7 +170,10 @@ class DataFormat():
         meta_data_AMR = meta_data[meta_data["Phage_ID"].isin(phage_AMR_ids)].reset_index()
         meta_data_AMR_ids = meta_data_AMR["Phage_ID"].tolist()
         
-        AMR_ids = random.sample(meta_data_AMR_ids, n)
+        if get_all_AMR is not True:
+            AMR_ids = random.sample(meta_data_AMR_ids, n)
+        else:
+            AMR_ids = meta_data_AMR_ids
     
         return AMR_ids
         
@@ -240,7 +242,8 @@ class DataFormat():
         #get a number of AMR phage ids
         if number_of_AMR_seqs is None:
             number_of_AMR_seqs = len(phage_AMR_ids)
-        phage_AMR_ids_pos = self.__get_phages_with_AMR__(phage_AMR_ids,meta_df, number_of_AMR_seqs)
+            get_all_AMR = True
+        phage_AMR_ids_pos = self.__get_phages_with_AMR__(phage_AMR_ids,meta_df, number_of_AMR_seqs,get_all_AMR = get_all_AMR)
         
         #get a number of non AMR phage ids
         if Number_of_control_seqs is not None:
@@ -302,5 +305,6 @@ class DataFormat():
             
         if save_fname is not None:
             self.savePickle(save_fname,self.data_df)
+            
 
         return

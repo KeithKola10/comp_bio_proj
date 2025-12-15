@@ -14,6 +14,7 @@ Data can be saved and loaded as .pickle files. However, There is an option to ex
 #%%
 from DataFormat import DataFormat
 
+
 #%% Create Data obj
 
 path = '/Users/kolak/comp_bio_proj/analysis_data' #path to data file
@@ -33,7 +34,8 @@ high_med_quality_only = True #filter for reads that are medium and high quality
 save_fname = None #export file name, Also doubles as True for save data, data is not saved automatically
 MR_proteins_Only = True #only AMR protein sequences, overrides number_of_AMR_seqs and Number_of_control_seqs
 
-data_obj.create_data_file(number_of_AMR_seqs=10) #Main function for creating a dataset
+data_obj.create_data_file(number_of_AMR_seqs=None,AMR_proteins_Only=True,save_fname = 'TemPhD_All') #Main function for creating a dataset
 
+#data_obj.export_csv(file_name='TemPhD_All_data', data=data_obj.data_df) #export to csv
 
 # %%
